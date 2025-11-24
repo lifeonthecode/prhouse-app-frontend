@@ -7,7 +7,7 @@ import { Link, useNavigate, useParams } from "react-router";
 import axiosInstance from "../../api/axios";
 
 const Profile = () => {
-    const { userProfileUpload, useLogout, authUser } = useAuth();
+    const { userProfileUpload, useLogout, authUser, setAuthUser } = useAuth();
 
     const [previewProfile, setPreviewProfile] = useState(null);
     const [activeTab, setActiveTab] = useState("posts");
@@ -29,16 +29,13 @@ const Profile = () => {
         const fetchProfile = async () => {
             setLoading(true);
             try {
-                const [userRes, postRes] = await Promise.all([
-                    axiosInstance.get(`/auth/profile/${id}`),
-                    axiosInstance.get(`/post/get-user-posts/${id}`),
-                ]);
-
+                const userRes = await axiosInstance.get(`/auth/profile/${id}`);
                 setUser(userRes?.data?.user);
+                const postRes = await axiosInstance.get(`/post/get-user-posts/${id}`);
                 setPosts(postRes?.data?.posts);
+
             } catch (error) {
-                toast.warning(error.message);
-                setUser(null);
+                toast.success(error?.response?.data?.message);
                 setPosts([]);
             }
             setLoading(false);
@@ -75,6 +72,8 @@ const Profile = () => {
             // Refresh Profile Data
             const userRes = await axiosInstance.get(`/auth/profile/${id}`);
             setUser(userRes?.data?.user);
+            const authRes = await axiosInstance.get('/auth/profile');
+            setAuthUser(authRes?.data?.user || null);
         }
     };
 
@@ -101,7 +100,7 @@ const Profile = () => {
             const res = await axiosInstance.get(url);
             setPosts(res.data[type === "posts" ? "posts" : "reels"]);
         } catch (err) {
-            toast.warning(err.message);
+            toast.warning(err?.response?.data?.message);
         }
 
         setLoadingPosts(false);
@@ -121,7 +120,7 @@ const Profile = () => {
                 switchTab(category === "post" ? "posts" : "reels");
             }
         } catch (error) {
-            toast.warn(error.message);
+            toast.warn(error?.response?.data?.message);
         }
     };
 
@@ -143,12 +142,26 @@ const Profile = () => {
                     {/* Profile Image */}
                     <div className="flex flex-col gap-4 items-center">
                         <div className="w-40 h-40 relative group">
-                            <img
-                                className="w-full h-full rounded-full border-4 border-blue-500 shadow object-cover transition-all duration-300 group-hover:scale-105"
-                                src={previewProfile || user?.profile?.url || "/avatar.jpg"}
-                                alt="profile"
-                                loading="lazy"
-                            />
+                            {
+                                previewProfile ? (
+                                    <img
+                                        className="w-full h-full rounded-full border-4 border-blue-500 shadow object-cover transition-all duration-300 group-hover:scale-105"
+                                        src={previewProfile}
+                                        alt="profile"
+                                        loading="lazy"
+                                    />
+
+                                ) : (
+                                    <img
+                                        className="w-full h-full rounded-full border-4 border-blue-500 shadow object-cover transition-all duration-300 group-hover:scale-105"
+                                        src={user?.profile?.url || "/avatar.jpg"}
+                                        alt="profile"
+                                        loading="lazy"
+                                    />
+
+                                )
+                            }
+
 
                             {authUser?._id === id && (
                                 <input
@@ -176,20 +189,24 @@ const Profile = () => {
                             {user?.name}
                         </h4>
 
-                        {!editingBio ? (
-                            <p
-                                className="text-gray-600 mt-3 cursor-pointer hover:text-gray-900"
-                                onClick={() => authUser?._id === id && setEditingBio(true)}
-                            >
-                                {user?.profile?.bio || "Click to write your bio"}
-                            </p>
-                        ) : (
-                            <textarea
-                                className="border p-3 rounded-md w-full mt-3"
-                                placeholder="Write your bio..."
-                                onChange={(e) => setBio(e.target.value)}
-                            />
-                        )}
+                        {
+                            !editingBio ? (
+                                <p
+                                    className="text-gray-600 mt-3 cursor-pointer hover:text-gray-900"
+                                    onClick={() => authUser?._id === id && setEditingBio(true)}
+                                >
+                                    {user?.profile?.bio ?
+                                        <span>{user?.profile?.bio}</span> :
+                                        <span>{(authUser?._id === id && "Click to write your bio")}</span>}
+                                </p>
+                            ) : (
+                                <textarea
+                                    className="border p-3 rounded-md w-full mt-3"
+                                    placeholder="Write your bio..."
+                                    onChange={(e) => setBio(e.target.value)}
+                                />
+                            )
+                        }
 
                         {authUser?._id === id && (
                             <button

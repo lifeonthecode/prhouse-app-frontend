@@ -3,9 +3,10 @@ import useAuth from '../../hooks/useAuth';
 import { toast } from 'react-toastify';
 import { Link, useNavigate } from 'react-router';
 import { motion } from 'framer-motion';
+import axiosInstance from '../../api/axios';
 
 const Login = () => {
-    const { userLogin } = useAuth();
+    const { userLogin, setAuthUser } = useAuth();
     const navigate = useNavigate();
 
     const emailRef = useRef(null);
@@ -21,6 +22,8 @@ const Login = () => {
 
         if (res?.success) {
             toast.success(res?.message);
+            const authRes = await axiosInstance.get('/auth/profile');
+            setAuthUser(authRes?.data?.user || null);
             navigate('/');
         }
     };

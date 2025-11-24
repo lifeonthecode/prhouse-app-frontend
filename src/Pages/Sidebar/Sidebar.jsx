@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from "react";
 import { TiHome } from "react-icons/ti";
 import { SiYoutubeshorts, SiReaddotcv } from "react-icons/si";
 import { FiPlusSquare } from "react-icons/fi";
 import { Link, NavLink } from "react-router";
 import { motion } from "framer-motion";
-import axiosInstance from "../../api/axios";
+import useAuth from "../../hooks/useAuth";
 
 const navLinks = [
     {
@@ -30,21 +29,7 @@ const navLinks = [
 ];
 
 const Sidebar = () => {
-    const [user, setUser] = useState(null)
-    // ===================== FETCH PROFILE =====================
-    useEffect(() => {
-        const fetchProfile = async () => {
-            try {
-                const res = await axiosInstance.get(`/auth/profile`)
-                setUser(res?.data?.user);
-            } catch (error) {
-                toast.warning(error.message);
-                setUser(null);
-            }
-        };
-        fetchProfile();
-    }, [id]);
-
+    const {authUser} = useAuth();
     return (
         <motion.div
             initial={{ x: -200, opacity: 0 }}
@@ -126,12 +111,12 @@ const Sidebar = () => {
                 >
                     <motion.div whileHover={{ scale: 1.03, x: 5 }}>
                         <Link
-                            to={`/profile/${user?._id}`}
+                            to={`/profile/${authUser?._id}`}
                             className="flex items-center gap-3 p-3 text-lg font-semibold text-gray-800 hover:bg-gray-100 rounded-lg transition"
                         >
                             <img
                                 className="w-8 h-8 rounded-full object-cover border"
-                                src={user?.profile?.url || "/avatar.jpg"}
+                                src={authUser?.profile?.url || "/avatar.jpg"}
                                 alt="profile"
                             />
                             Profile
