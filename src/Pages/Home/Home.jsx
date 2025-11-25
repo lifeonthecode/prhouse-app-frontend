@@ -1,45 +1,7 @@
-import React, { useEffect, useState } from "react";
-// import SearchForm from "../../Components/SearchForm";
-import axiosInstance from "../../api/axios";
 import { Link } from "react-router";
-import useAuth from "../../hooks/useAuth";
-import { toast } from "react-toastify";
 import { motion } from "framer-motion";
 
-const Home = () => {
-  const { search } = useAuth();
-  const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const fetchPosts = async () => {
-      setLoading(true);
-      setError(false);
-
-      try {
-        const res = await axiosInstance.get(`/post/get-posts?title=${search}`);
-        if (isMounted) {
-          setPosts(res?.data?.posts || []);
-          setLoading(false);
-        }
-      } catch (err) {
-        if (isMounted) {
-          setError(true);
-          setPosts([]);
-          setLoading(false);
-        }
-        toast.warn(err.message);
-      }
-    };
-
-    fetchPosts();
-    return () => (isMounted = false);
-  }, [search]);
-
+const Home = ({posts, loading, error}) => {
   return (
     <div>
       {/* CONTENT WRAPPER */}

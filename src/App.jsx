@@ -8,12 +8,47 @@ import Reel from "./Pages/Reel/Reel"
 import Create from "./Pages/Create/Create"
 import Login from "./Pages/Login/Login"
 import Register from "./Pages/Register/Register"
-import { ToastContainer } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import PrivateRoute from "./Components/PrivateRoute"
+import useAuth from "./hooks/useAuth"
+import { useEffect, useState } from "react"
+import axiosInstance from "./api/axios"
 
 
 
 function App() {
+  const { search } = useAuth();
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchPosts = async () => {
+      setLoading(true);
+      setError(false);
+
+      try {
+        const res = await axiosInstance.get(`/post/get-posts?title=${search}`);
+        if (isMounted) {
+          setPosts(res?.data?.posts || []);
+          setLoading(false);
+        }
+      } catch (err) {
+        if (isMounted) {
+          setError(true);
+          setPosts([]);
+          setLoading(false);
+        }
+        toast.warn(err.message);
+      }
+    };
+
+    fetchPosts();
+    return () => (isMounted = false);
+  }, [search]);
   return (
     <>
       <BrowserRouter>
@@ -21,7 +56,7 @@ function App() {
           <Route path="/" element={<HomeLayout />}>
             <Route index element={
               <PrivateRoute>
-                <Home />
+                <Home posts={posts} loading={loading} error={error} />
               </PrivateRoute>
             } />
             <Route path="reel" element={
