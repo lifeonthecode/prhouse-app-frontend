@@ -1,7 +1,44 @@
 import { Link } from "react-router";
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import useAuth from "../../hooks/useAuth";
+import { toast } from "react-toastify";
+import axiosInstance from "../../api/axios";
 
-const Home = ({posts, loading, error}) => {
+const Home = ({ initialPosts }) => {
+  const { search } = useAuth();
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchPosts = async () => {
+      setLoading(true);
+      setError(false);
+
+      try {
+        const res = await axiosInstance.get(`/post/get-posts?title=${search}`);
+        if (isMounted) {
+          setPosts(res?.data?.posts || initialPosts);
+          setLoading(false);
+        }
+      } catch (err) {
+        if (isMounted) {
+          setError(true);
+          setPosts([]);
+          setLoading(false);
+        }
+        toast.warn(err.message);
+      }
+    };
+
+    fetchPosts();
+    return () => (isMounted = false);
+  }, [search]);
+
   return (
     <div>
       {/* CONTENT WRAPPER */}
