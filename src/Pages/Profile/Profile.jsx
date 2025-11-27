@@ -79,10 +79,15 @@ const Profile = () => {
 
     // ===================== LOGOUT =====================
     const handleLogout = async () => {
-        const res = await useLogout();
-        if (res?.success) {
-            toast.success(res?.message);
-            navigate("/login");
+        try {
+
+            const res = await useLogout();
+            if (res?.success) {
+                toast.success(res?.message);
+                navigate("/login");
+            }
+        } catch (error) {
+            toast.error(err?.response?.data?.message)
         }
     };
 

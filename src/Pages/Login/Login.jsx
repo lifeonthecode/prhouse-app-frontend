@@ -18,13 +18,17 @@ const Login = () => {
         };
 
         const res = await userLogin(data);
-
-        if (res?.success) {
-            toast.success(res?.message);
-            const authRes = await axiosInstance.get('/auth/profile');
-            setAuthUser(authRes?.data?.user || null);
-            navigate('/');
+        try {
+            if (res?.success) {
+                toast.success(res?.message);
+                const authRes = await axiosInstance.get('/auth/profile');
+                setAuthUser(authRes?.data?.user || null);
+                navigate('/');
+            }
+        } catch (error) {
+            toast.error(err?.response?.data?.message)
         }
+
     };
 
     return (
