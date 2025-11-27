@@ -1,4 +1,3 @@
-import React, { useRef } from 'react';
 import useAuth from '../../hooks/useAuth';
 import { Link, useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
@@ -7,18 +6,19 @@ import { motion } from 'framer-motion';
 const Register = () => {
     const { userRegister } = useAuth();
     const navigate = useNavigate();
-    const nameRef = useRef(null);
-    const emailRef = useRef(null);
-    const passwordRef = useRef(null);
 
-    const handleRegister = async () => {
-        const formData = {
-            name: nameRef.current.value,
-            email: emailRef.current.value,
-            password: passwordRef.current.value,
+    const handleRegister = async (e) => {
+        e.preventDefault();
+        const name = e.target.name.value;
+        const email = e.target.email.value;
+        const password = e.target.password.value;
+        const data = {
+            name,
+            email,
+            password,
         };
 
-        const res = await userRegister(formData);
+        const res = await userRegister(data);
         if (res?.success) {
             toast.success(res?.message);
             navigate('/login');
@@ -55,10 +55,10 @@ const Register = () => {
                 </motion.h2>
 
                 {/* Form */}
-                <form className="flex flex-col gap-4">
+                <form className="flex flex-col gap-4" onSubmit={(e) => handleRegister(e)}>
                     <motion.input
-                        ref={nameRef}
                         type="text"
+                        id='name'
                         placeholder="Name..."
                         className="w-full h-12 border border-gray-300 pl-4 rounded-md outline-none"
                         whileFocus={{ scale: 1.03, boxShadow: "0 0 8px rgba(0,0,0,0.2)" }}
@@ -66,8 +66,8 @@ const Register = () => {
                     />
 
                     <motion.input
-                        ref={emailRef}
                         type="email"
+                        id='email'
                         placeholder="Email..."
                         className="w-full h-12 border border-gray-300 pl-4 rounded-md outline-none"
                         whileFocus={{ scale: 1.03, boxShadow: "0 0 8px rgba(0,0,0,0.2)" }}
@@ -75,8 +75,8 @@ const Register = () => {
                     />
 
                     <motion.input
-                        ref={passwordRef}
                         type="password"
+                        id='password'
                         placeholder="Password..."
                         className="w-full h-12 border border-gray-300 pl-4 rounded-md outline-none"
                         whileFocus={{ scale: 1.03, boxShadow: "0 0 8px rgba(0,0,0,0.2)" }}
@@ -84,8 +84,7 @@ const Register = () => {
                     />
 
                     <motion.button
-                        type="button"
-                        onClick={handleRegister}
+                        type="submit"
                         className="w-full h-12 bg-black text-white rounded-md font-pacifico text-lg cursor-pointer"
                         whileHover={{ scale: 1.05, backgroundColor: "#222" }}
                         whileTap={{ scale: 0.95 }}

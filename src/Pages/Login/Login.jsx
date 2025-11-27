@@ -1,4 +1,3 @@
-import React, { useRef } from 'react';
 import useAuth from '../../hooks/useAuth';
 import { toast } from 'react-toastify';
 import { Link, useNavigate } from 'react-router';
@@ -9,16 +8,17 @@ const Login = () => {
     const { userLogin, setAuthUser } = useAuth();
     const navigate = useNavigate();
 
-    const emailRef = useRef(null);
-    const passwordRef = useRef(null);
-
-    const loginHandle = async () => {
-        const formData = {
-            email: emailRef.current.value,
-            password: passwordRef.current.value,
+    const loginHandle = async (e) => {
+        e.preventDefault();
+        const email = e.target.email.value;
+        const password = e.target.password.value;
+        const data = {
+            email,
+            password,
         };
+        console.log(data)
 
-        const res = await userLogin(formData);
+        const res = await userLogin(data);
 
         if (res?.success) {
             toast.success(res?.message);
@@ -64,10 +64,10 @@ const Login = () => {
                 </motion.h2>
 
                 {/* FORM */}
-                <form className="flex flex-col gap-4">
+                <form className="flex flex-col gap-4" onSubmit={(e) => loginHandle(e)}>
                     <motion.input
                         type="email"
-                        ref={emailRef}
+                        id='email'
                         placeholder="Email..."
                         className="w-full h-12 border rounded-lg pl-4 outline-none"
                         whileFocus={{ scale: 1.02 }}
@@ -76,7 +76,7 @@ const Login = () => {
 
                     <motion.input
                         type="password"
-                        ref={passwordRef}
+                        id='password'
                         placeholder="Password..."
                         className="w-full h-12 border rounded-lg pl-4 outline-none"
                         whileFocus={{ scale: 1.02 }}
@@ -85,8 +85,7 @@ const Login = () => {
 
                     {/* Button */}
                     <motion.button
-                        type="button"
-                        onClick={loginHandle}
+                        type="submit"
                         className="w-full bg-black text-white font-pacifico h-12 rounded-lg cursor-pointer"
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.9 }}
