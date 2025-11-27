@@ -16,7 +16,6 @@ const Login = () => {
             email,
             password,
         };
-        console.log(data)
 
         const res = await userLogin(data);
 

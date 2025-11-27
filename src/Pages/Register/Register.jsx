@@ -17,8 +17,6 @@ const Register = () => {
             email,
             password,
         };
-
-        const res = await userRegister(data);
         if (res?.success) {
             toast.success(res?.message);
             navigate('/login');
