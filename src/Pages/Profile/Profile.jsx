@@ -87,7 +87,7 @@ const Profile = () => {
                 navigate("/login");
             }
         } catch (error) {
-            toast.error(err?.response?.data?.message)
+            toast.error(error?.response?.data?.message)
         }
     };
 
